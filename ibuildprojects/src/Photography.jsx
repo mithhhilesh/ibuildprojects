@@ -151,7 +151,7 @@ export default function Photography() {
 
   // ✅ fetch data
   useEffect(() => {
-    fetch("http://localhost:5000/api/photos")
+    fetch("https://ibuildprojects.onrender.com/api/photos")
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
