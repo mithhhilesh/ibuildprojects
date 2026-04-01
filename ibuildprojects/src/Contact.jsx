@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { motion, useInView } from 'motion/react'
 import ParticleField from './ParticleField'
+import { useIsMobile } from './useIsMobile'
 
 const socials = [
   { icon: '🐙', label: 'GitHub', handle: '@mithhhilesh', color: '#7c3aed', url: 'https://github.com/mithhhilesh' },
@@ -99,6 +100,7 @@ function AnimInput({ label, type = 'text', multiline, name }) {
 
 // ─── Contact page ─────────────────────────────────────────────────────────────
 export default function Contact() {
+  const isMobile = useIsMobile()
   const [sent, setSent] = useState(false)
 
   const handleSend = () => {
@@ -122,31 +124,58 @@ export default function Contact() {
         <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,0.1), transparent 70%)', top: 100, left: -100, filter: 'blur(60px)' }} />
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', padding: '60px 72px' }}>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          maxWidth: 1100,
+          margin: '0 auto',
+          padding: isMobile ? '40px 16px' : '60px 72px',
+        }}
+      >
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 64, textAlign: 'center' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ marginBottom: isMobile ? 40 : 64, textAlign: 'center' }}
+        >
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--accent2)', letterSpacing: '0.3em', marginBottom: 14 }}>
             LET&apos;S CONNECT
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', letterSpacing: '-0.03em', marginBottom: 14 }}>
+          <h1
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: 'clamp(2.2rem, 8vw, 4.5rem)',
+              letterSpacing: '-0.03em',
+              marginBottom: 14,
+            }}
+          >
             Say{' '}
             <span style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Hello 👋
             </span>
           </h1>
-          <p style={{ color: 'var(--text-muted)', lineHeight: 1.72, maxWidth: 480, margin: '0 auto' }}>
+          <p style={{ color: 'var(--text-muted)', lineHeight: 1.72, maxWidth: 480, margin: '0 auto', fontSize: '0.95rem' }}>
             Whether it&apos;s a project idea, a collaboration, or just a conversation about code and cameras — I&apos;m always up for a good chat.
           </p>
         </motion.div>
 
-        {/* Two-col layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'start' }}>
+        {/* Two-col → single-col on mobile */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+            gap: isMobile ? 36 : 60,
+            alignItems: 'start',
+          }}
+        >
           {/* Left */}
-          <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.55rem', marginBottom: 12 }}>
+          <motion.div initial={{ opacity: 0, x: isMobile ? 0 : -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: isMobile ? '1.3rem' : '1.55rem', marginBottom: 12 }}>
               Let&apos;s build something amazing together.
             </h2>
-            <p style={{ color: 'var(--text-muted)', lineHeight: 1.82, marginBottom: 36 }}>
+            <p style={{ color: 'var(--text-muted)', lineHeight: 1.82, marginBottom: 36, fontSize: '0.95rem' }}>
               I&apos;m currently open to freelance opportunities, internships, and interesting collaborations. My response time is usually under 24 hours.
             </p>
 
@@ -155,11 +184,25 @@ export default function Contact() {
               { icon: '📩', label: 'EMAIL', value: 'mithlesh.yeole@gmail.com', color: 'var(--accent2)' },
               { icon: '📍', label: 'LOCATION', value: 'Nagpur, Maharashtra, India', color: 'var(--text)' },
             ].map((row) => (
-              <motion.div key={row.label} whileHover={{ x: 6 }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', background: 'rgba(17,17,36,0.6)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 12, marginBottom: 14, backdropFilter: 'blur(10px)' }}>
+              <motion.div
+                key={row.label}
+                whileHover={{ x: 6 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  padding: '16px 18px',
+                  background: 'rgba(17,17,36,0.6)',
+                  border: '1px solid rgba(124,58,237,0.2)',
+                  borderRadius: 12,
+                  marginBottom: 14,
+                  backdropFilter: 'blur(10px)',
+                }}
+              >
                 <span style={{ fontSize: '1.3rem' }}>{row.icon}</span>
                 <div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 2 }}>{row.label}</div>
-                  <div style={{ fontSize: '0.88rem', color: row.color }}>{row.value}</div>
+                  <div style={{ fontSize: '0.88rem', color: row.color, wordBreak: 'break-all' }}>{row.value}</div>
                 </div>
               </motion.div>
             ))}
@@ -175,12 +218,22 @@ export default function Contact() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + i * 0.08 }}
                   whileHover={{ scale: 1.03, borderColor: s.color }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 13px', background: 'rgba(17,17,36,0.6)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, backdropFilter: 'blur(10px)', transition: 'border-color 0.3s' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '11px 13px',
+                    background: 'rgba(17,17,36,0.6)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 10,
+                    backdropFilter: 'blur(10px)',
+                    transition: 'border-color 0.3s',
+                  }}
                 >
                   <span style={{ fontSize: '1.2rem' }}>{s.icon}</span>
-                  <div>
-                    <div style={{ fontSize: '0.73rem', fontWeight: 600 }}>{s.label}</div>
-                    <div style={{ fontSize: '0.63rem', color: s.color, fontFamily: 'var(--font-mono)' }}>{s.handle}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: '0.73rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label}</div>
+                    <div style={{ fontSize: '0.63rem', color: s.color, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.handle}</div>
                   </div>
                 </motion.a>
               ))}
@@ -189,15 +242,21 @@ export default function Contact() {
 
           {/* Right — form */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: isMobile ? 0 : 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            style={{ background: 'rgba(11,11,22,0.85)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 20, padding: '38px 34px', backdropFilter: 'blur(20px)' }}
+            style={{
+              background: 'rgba(11,11,22,0.85)',
+              border: '1px solid rgba(124,58,237,0.2)',
+              borderRadius: 20,
+              padding: isMobile ? '28px 20px' : '38px 34px',
+              backdropFilter: 'blur(20px)',
+            }}
           >
             <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.25rem', marginBottom: 28 }}>
               Send a Message
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 18px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 0 : '0 18px' }}>
               <AnimInput label="First Name" name="first" />
               <AnimInput label="Last Name" name="last" />
             </div>
@@ -230,8 +289,25 @@ export default function Contact() {
 
         {/* Available badge */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} style={{ textAlign: 'center', marginTop: 72 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', border: '1px solid rgba(124,58,237,0.18)', borderRadius: 30, fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
-            <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 22px',
+              border: '1px solid rgba(124,58,237,0.18)',
+              borderRadius: 30,
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.68rem',
+              letterSpacing: '0.1em',
+              color: 'var(--text-muted)',
+            }}
+          >
+            <motion.div
+              animate={{ scale: [1, 1.4, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }}
+            />
             AVAILABLE FOR OPPORTUNITIES
           </div>
         </motion.div>

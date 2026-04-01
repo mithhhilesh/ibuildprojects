@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'motion/react'
 
 export default function Cursor() {
@@ -6,8 +6,12 @@ export default function Cursor() {
   const cursorY = useMotionValue(-100)
   const trailX = useSpring(cursorX, { stiffness: 80, damping: 20 })
   const trailY = useSpring(cursorY, { stiffness: 80, damping: 20 })
+  const [isTouch, setIsTouch] = useState(false)
 
   useEffect(() => {
+    // Detect touch device: suppress the custom cursor entirely
+    const checkTouch = () => setIsTouch(window.matchMedia('(hover: none) and (pointer: coarse)').matches)
+    checkTouch()
     const move = (e) => {
       cursorX.set(e.clientX - 6)
       cursorY.set(e.clientY - 6)
@@ -15,6 +19,8 @@ export default function Cursor() {
     window.addEventListener('mousemove', move)
     return () => window.removeEventListener('mousemove', move)
   }, [])
+
+  if (isTouch) return null
 
   return (
     <>

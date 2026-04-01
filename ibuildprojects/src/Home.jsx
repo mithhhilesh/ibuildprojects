@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState } from 'react'
 import { motion, useScroll, useTransform, useInView } from 'motion/react'
 import ParticleField from './ParticleField'
-import { User, Code, Camera, Bot } from "lucide-react";
+import { User, Code, Camera, Bot } from "lucide-react"
+import { useIsMobile } from './useIsMobile'
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 const techSkills = [
@@ -58,7 +59,7 @@ function SkillOrb({ skill, index }) {
           textAlign: 'center',
           cursor: 'default',
           backdropFilter: 'blur(12px)',
-          minWidth: 118,
+          minWidth: 110,
         }}
       >
         <div style={{ fontSize: '2rem', marginBottom: 8 }}>{skill.icon}</div>
@@ -144,8 +145,48 @@ function SpinRing({ size, color, speed, reverse }) {
   )
 }
 
+// ─── Orbit dot component ───────────────────────────────────────────────────────
+function OrbitDot({ r, angle, icon, speed }) {
+  return (
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
+      style={{
+        position: 'absolute',
+        width: r * 2,
+        height: r * 2,
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        pointerEvents: 'none',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          transform: `translateX(-50%) rotate(${angle}deg) translateY(-${r}px) rotate(-${angle}deg)`,
+          width: 36,
+          height: 36,
+          background: 'rgba(17,17,36,0.9)',
+          border: '1px solid rgba(124,58,237,0.3)',
+          borderRadius: 8,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1rem',
+        }}
+      >
+        {icon}
+      </div>
+    </motion.div>
+  )
+}
+
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
+  const isMobile = useIsMobile()
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 600], [0, 140])
   const opacity = useTransform(scrollY, [0, 400], [1, 0])
@@ -164,55 +205,67 @@ function Hero() {
         opacity,
         minHeight: '100vh',
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'center',
+        justifyContent: isMobile ? 'center' : 'flex-start',
         position: 'relative',
-        paddingTop: 100,
+        paddingTop: isMobile ? 100 : 100,
         zIndex: 1,
         overflow: 'hidden',
       }}
     >
-      {/* Orbital rings */}
-      <div
-        style={{
-          position: 'absolute',
-          right: '10%',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          width: 420,
-          height: 420,
-          pointerEvents: 'none',
-        }}
-      >
-        <SpinRing size={420} color="rgba(124,58,237,0.14)" speed={22} />
-        <SpinRing size={300} color="rgba(6,182,212,0.2)" speed={15} reverse />
-        <SpinRing size={180} color="rgba(245,158,11,0.18)" speed={9} />
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      {/* Orbital rings — desktop only */}
+      {!isMobile && (
+        <div
           style={{
             position: 'absolute',
-            width: 110,
-            height: 110,
-            background: 'radial-gradient(circle, rgba(124,58,237,0.55), rgba(6,182,212,0.2), transparent)',
-            borderRadius: '50%',
+            right: '10%',
             top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            filter: 'blur(18px)',
+            transform: 'translateY(-50%)',
+            width: 420,
+            height: 420,
+            pointerEvents: 'none',
           }}
-        />
-        {/* Planet dots */}
-        {[
-          { r: 210, angle: 30, icon: '⚛️', speed: 22 },
-          { r: 150, angle: 120, icon: '🐍', speed: 15 },
-          { r: 90, angle: 240, icon: '🤖', speed: 9 },
-        ].map((p, i) => (
-          <OrbitDot key={i} {...p} />
-        ))}
-      </div>
+        >
+          <SpinRing size={420} color="rgba(124,58,237,0.14)" speed={22} />
+          <SpinRing size={300} color="rgba(6,182,212,0.2)" speed={15} reverse />
+          <SpinRing size={180} color="rgba(245,158,11,0.18)" speed={9} />
+          <motion.div
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              position: 'absolute',
+              width: 110,
+              height: 110,
+              background: 'radial-gradient(circle, rgba(124,58,237,0.55), rgba(6,182,212,0.2), transparent)',
+              borderRadius: '50%',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              filter: 'blur(18px)',
+            }}
+          />
+          {[
+            { r: 210, angle: 30, icon: '⚛️', speed: 22 },
+            { r: 150, angle: 120, icon: '🐍', speed: 15 },
+            { r: 90, angle: 240, icon: '🤖', speed: 9 },
+          ].map((p, i) => (
+            <OrbitDot key={i} {...p} />
+          ))}
+        </div>
+      )}
 
       {/* Copy */}
-      <div style={{ maxWidth: 680, paddingLeft: 72, zIndex: 2 }}>
+      <div
+        style={{
+          maxWidth: isMobile ? '100%' : 680,
+          paddingLeft: isMobile ? 24 : 72,
+          paddingRight: isMobile ? 24 : 0,
+          paddingBottom: isMobile ? 60 : 0,
+          zIndex: 2,
+          textAlign: isMobile ? 'center' : 'left',
+        }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -235,7 +288,7 @@ function Hero() {
           style={{
             fontFamily: 'var(--font-display)',
             fontWeight: 800,
-            fontSize: 'clamp(3rem, 6vw, 5.5rem)',
+            fontSize: 'clamp(3rem, 10vw, 5.5rem)',
             lineHeight: 1.05,
             letterSpacing: '-0.03em',
             marginBottom: 14,
@@ -260,7 +313,15 @@ function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 26, height: '2.2rem', overflow: 'hidden' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: isMobile ? 'center' : 'flex-start',
+            gap: 10,
+            marginBottom: 26,
+            height: '2.2rem',
+            overflow: 'hidden',
+          }}
         >
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-muted)' }}>
             I&apos;m a
@@ -289,7 +350,14 @@ function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.44 }}
-          style={{ fontSize: '1rem', color: 'var(--text-muted)', lineHeight: 1.8, maxWidth: 500, marginBottom: 34 }}
+          style={{
+            fontSize: '1rem',
+            color: 'var(--text-muted)',
+            lineHeight: 1.8,
+            maxWidth: isMobile ? '100%' : 500,
+            marginBottom: 34,
+            margin: isMobile ? '0 auto 34px' : '0 0 34px',
+          }}
         >
           Passionate about building intelligent systems, crafting beautiful interfaces,
           and capturing the world through my lens. I turn ideas into experiences.
@@ -299,7 +367,12 @@ function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.54 }}
-          style={{ display: 'flex', gap: 14 }}
+          style={{
+            display: 'flex',
+            gap: 14,
+            justifyContent: isMobile ? 'center' : 'flex-start',
+            flexWrap: 'wrap',
+          }}
         >
           <motion.a
             href="/photography"
@@ -367,47 +440,9 @@ function Hero() {
   )
 }
 
-// Orbit dot component
-function OrbitDot({ r, angle, icon, speed }) {
-  return (
-    <motion.div
-      animate={{ rotate: 360 }}
-      transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
-      style={{
-        position: 'absolute',
-        width: r * 2,
-        height: r * 2,
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        pointerEvents: 'none',
-      }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: '50%',
-          transform: `translateX(-50%) rotate(${angle}deg) translateY(-${r}px) rotate(-${angle}deg)`,
-          width: 36,
-          height: 36,
-          background: 'rgba(17,17,36,0.9)',
-          border: '1px solid rgba(124,58,237,0.3)',
-          borderRadius: 8,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1rem',
-        }}
-      >
-        {icon}
-      </div>
-    </motion.div>
-  )
-}
-
 // ─── About ────────────────────────────────────────────────────────────────────
 function AboutSection() {
+  const isMobile = useIsMobile()
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-100px' })
 
@@ -415,12 +450,13 @@ function AboutSection() {
     <section
       ref={ref}
       style={{
-        padding: '120px 72px',
+        padding: isMobile ? '80px 24px' : '120px 72px',
         position: 'relative',
         zIndex: 1,
         display: 'flex',
-        gap: 80,
+        gap: isMobile ? 40 : 80,
         alignItems: 'center',
+        flexDirection: isMobile ? 'column' : 'row',
         flexWrap: 'wrap',
       }}
     >
@@ -441,8 +477,8 @@ function AboutSection() {
           }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
           style={{
-            width: 260,
-            height: 260,
+            width: isMobile ? 200 : 260,
+            height: isMobile ? 200 : 260,
             background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
             display: 'flex',
             alignItems: 'center',
@@ -450,13 +486,13 @@ function AboutSection() {
             boxShadow: '0 40px 80px rgba(124,58,237,0.3)',
           }}
         >
-          <User size={80} color="white" />
+          <User size={isMobile ? 60 : 80} color="white" />
         </motion.div>
 
         {[
           { icon: <Code size={20} />, x: -24, y: 20, delay: 0 },
-          { icon: <Camera size={20} />, x: 268, y: 60, delay: 0.3 },
-          { icon: <Bot size={20} />, x: 230, y: 210, delay: 0.6 },
+          { icon: <Camera size={20} />, x: isMobile ? 208 : 268, y: 60, delay: 0.3 },
+          { icon: <Bot size={20} />, x: isMobile ? 170 : 230, y: isMobile ? 160 : 210, delay: 0.6 },
         ].map((b, i) => (
           <motion.div
             key={i}
@@ -484,15 +520,15 @@ function AboutSection() {
 
       {/* Text */}
       <motion.div
-        initial={{ opacity: 0, x: 40 }}
+        initial={{ opacity: 0, x: isMobile ? 0 : 40 }}
         animate={inView ? { opacity: 1, x: 0 } : {}}
         transition={{ delay: 0.2, duration: 0.8 }}
-        style={{ flex: 1, minWidth: 280 }}
+        style={{ flex: 1, minWidth: 280, textAlign: isMobile ? 'center' : 'left' }}
       >
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--accent3)', letterSpacing: '0.25em', marginBottom: 14 }}>
           00 — ABOUT ME
         </div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(2rem, 3vw, 3rem)', letterSpacing: '-0.02em', marginBottom: 22 }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3rem)', letterSpacing: '-0.02em', marginBottom: 22 }}>
           The Story Behind <br />
           <span style={{ color: 'var(--accent2)' }}>The Code</span>
         </h2>
@@ -504,7 +540,7 @@ function AboutSection() {
         <p style={{ color: 'var(--text-muted)', lineHeight: 1.85, maxWidth: 520 }}>
           My journey spans machine learning, full-stack development, and visual storytelling —
           all united by a curiosity that never stops asking{' '}
-          <span style={{ color: 'var(--accent)', fontStyle: 'italic' }}>"what if?"</span>
+          <span style={{ color: 'var(--accent)', fontStyle: 'italic' }}>&quot;what if?&quot;</span>
         </p>
       </motion.div>
     </section>
@@ -513,8 +549,8 @@ function AboutSection() {
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 function StatsStrip() {
+  const isMobile = useIsMobile()
   const stats = [
-    // { value: '12+', label: 'Projects Built' },
     { value: '2+', label: 'Years Coding' },
     { value: '10000+', label: 'Photos Taken' },
     { value: '∞', label: 'Curiosity' },
@@ -526,11 +562,11 @@ function StatsStrip() {
     <div
       ref={ref}
       style={{
-        margin: '0 72px',
+        margin: isMobile ? '0 16px' : '0 72px',
         background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.07))',
         border: '1px solid rgba(124,58,237,0.2)',
         borderRadius: 20,
-        padding: '40px 60px',
+        padding: isMobile ? '30px 20px' : '40px 60px',
         display: 'flex',
         justifyContent: 'space-around',
         flexWrap: 'wrap',
@@ -551,7 +587,7 @@ function StatsStrip() {
             style={{
               fontFamily: 'var(--font-display)',
               fontWeight: 800,
-              fontSize: '3rem',
+              fontSize: isMobile ? '2.2rem' : '3rem',
               background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -571,21 +607,33 @@ function StatsStrip() {
 
 // ─── Skills section ───────────────────────────────────────────────────────────
 function SkillsSection() {
+  const isMobile = useIsMobile()
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section ref={ref} style={{ padding: '120px 72px', position: 'relative', zIndex: 1 }}>
+    <section ref={ref} style={{ padding: isMobile ? '80px 20px' : '120px 72px', position: 'relative', zIndex: 1 }}>
       <motion.div initial={{ opacity: 0, x: -30 }} animate={inView ? { opacity: 1, x: 0 } : {}} style={{ marginBottom: 56 }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--accent)', letterSpacing: '0.25em', marginBottom: 10 }}>
           01 — TECHNICAL ARSENAL
         </div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(2rem, 4vw, 3.5rem)', letterSpacing: '-0.02em', background: 'linear-gradient(90deg, var(--text), var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-          Skills & Technologies
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontWeight: 800,
+            fontSize: 'clamp(2rem, 6vw, 3.5rem)',
+            letterSpacing: '-0.02em',
+            background: 'linear-gradient(90deg, var(--text), var(--text-muted))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Skills &amp; Technologies
         </h2>
       </motion.div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, justifyContent: isMobile ? 'center' : 'flex-start' }}>
         {techSkills.map((s, i) => <SkillOrb key={s.name} skill={s} index={i} />)}
       </div>
 
@@ -593,10 +641,22 @@ function SkillsSection() {
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--accent2)', letterSpacing: '0.25em', marginBottom: 10 }}>
           02 — BEYOND THE CODE
         </div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(1.8rem, 3vw, 3rem)', letterSpacing: '-0.02em', marginBottom: 36, background: 'linear-gradient(90deg, var(--text), var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontWeight: 800,
+            fontSize: 'clamp(1.8rem, 5vw, 3rem)',
+            letterSpacing: '-0.02em',
+            marginBottom: 36,
+            background: 'linear-gradient(90deg, var(--text), var(--text-muted))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
           Life Skills
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
           {lifeSkills.map((s, i) => <LifeCard key={s.name} skill={s} index={i} />)}
         </div>
       </motion.div>

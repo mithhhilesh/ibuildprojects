@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
 import { motion, useInView, AnimatePresence } from 'motion/react'
 import ParticleField from './ParticleField'
-import { useEffect } from "react";
+import { useEffect } from "react"
+import { useIsMobile } from './useIsMobile'
 
 // ─── Flip card ────────────────────────────────────────────────────────────────
 function PhotoCard({ photo, index, onView }) {
@@ -60,7 +61,6 @@ function PhotoCard({ photo, index, onView }) {
               transition={{ duration: 4, repeat: Infinity }}
               style={{ fontSize: '4.5rem', marginBottom: 14 }}
             >
-
             </motion.div>
             <div
               style={{
@@ -145,29 +145,23 @@ function PhotoCard({ photo, index, onView }) {
 
 // ─── Photography page ─────────────────────────────────────────────────────────
 export default function Photography() {
-  const [photos, setPhotos] = useState([]);
-  const [active, setActive] = useState("All");
-  const [selectedImage, setSelectedImage] = useState(null);
+  const isMobile = useIsMobile()
+  const [photos, setPhotos] = useState([])
+  const [active, setActive] = useState("All")
+  const [selectedImage, setSelectedImage] = useState(null)
 
-  // ✅ fetch data
   useEffect(() => {
     fetch("https://ibuildprojects.onrender.com/api/photos")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        setPhotos(data);
+        console.log(data)
+        setPhotos(data)
       })
-      .catch((err) => console.log(err));
-  }, []);
+      .catch((err) => console.log(err))
+  }, [])
 
-  // ✅ dynamic categories
-  const allCategories = ["All", ...new Set(photos.map((p) => p.category))];
-
-  // ✅ filtering
-  const filtered =
-    active === "All"
-      ? photos
-      : photos.filter((p) => p.category === active);
+  const allCategories = ["All", ...new Set(photos.map((p) => p.category))]
+  const filtered = active === "All" ? photos : photos.filter((p) => p.category === active)
 
   return (
     <motion.div
@@ -195,14 +189,27 @@ export default function Photography() {
         />
       </div>
 
-      <div style={{ position: "relative", zIndex: 1, padding: "60px 72px" }}>
+      <div style={{ position: "relative", zIndex: 1, padding: isMobile ? '40px 16px' : '60px 72px' }}>
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} style={{ textAlign: "center", marginBottom: 56 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          style={{ textAlign: "center", marginBottom: 56 }}
+        >
           <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--accent3)", letterSpacing: "0.3em", marginBottom: 14 }}>
             THROUGH THE LENS
           </div>
 
-          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(2.5rem, 5vw, 4.5rem)", letterSpacing: "-0.03em", marginBottom: 14 }}>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 800,
+              fontSize: "clamp(2.2rem, 8vw, 4.5rem)",
+              letterSpacing: "-0.03em",
+              marginBottom: 14,
+            }}
+          >
             My{" "}
             <span
               style={{
@@ -215,13 +222,18 @@ export default function Photography() {
             </span>
           </h1>
 
-          <p style={{ color: "var(--text-muted)", maxWidth: 460, margin: "0 auto", lineHeight: 1.72 }}>
+          <p style={{ color: "var(--text-muted)", maxWidth: 460, margin: "0 auto", lineHeight: 1.72, fontSize: '0.95rem' }}>
             Click any photo to flip it and read the story behind the frame.
           </p>
         </motion.div>
 
         {/* Filters */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 52 }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 52 }}
+        >
           {allCategories.map((cat) => (
             <motion.button
               key={cat}
@@ -229,11 +241,15 @@ export default function Photography() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               style={{
-                padding: "8px 20px",
+                padding: isMobile ? '8px 16px' : '8px 20px',
                 borderRadius: 30,
                 border: active === cat ? "none" : "1px solid rgba(124,58,237,0.3)",
                 background: active === cat ? "linear-gradient(135deg, var(--accent), var(--accent2))" : "rgba(17,17,36,0.6)",
                 color: active === cat ? "#fff" : "var(--text-muted)",
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.68rem',
+                letterSpacing: '0.08em',
+                cursor: 'pointer',
               }}
             >
               {cat.toUpperCase()}
@@ -250,7 +266,7 @@ export default function Photography() {
             exit={{ opacity: 0 }}
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))",
+              gridTemplateColumns: isMobile ? '1fr' : "repeat(auto-fill, minmax(290px, 1fr))",
               gap: 22,
             }}
           >
@@ -259,6 +275,7 @@ export default function Photography() {
             ))}
           </motion.div>
         </AnimatePresence>
+
         {selectedImage && (
           <div
             onClick={() => setSelectedImage(null)}
@@ -270,26 +287,44 @@ export default function Photography() {
               alignItems: "center",
               justifyContent: "center",
               zIndex: 999,
+              padding: '16px',
             }}
           >
             <img
               src={selectedImage}
               alt="preview"
               style={{
-                maxWidth: "90%",
-                maxHeight: "90%",
+                maxWidth: "100%",
+                maxHeight: "90vh",
                 borderRadius: 12,
+                objectFit: 'contain',
               }}
             />
           </div>
         )}
+
         {/* Quote */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} style={{ textAlign: 'center', marginTop: 80, padding: '40px', borderTop: '1px solid rgba(124,58,237,0.12)' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 600, fontStyle: 'italic', color: 'var(--text-muted)', maxWidth: 580, margin: '0 auto' }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          style={{ textAlign: 'center', marginTop: 80, padding: isMobile ? '30px 16px' : '40px', borderTop: '1px solid rgba(124,58,237,0.12)' }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: isMobile ? '1rem' : '1.3rem',
+              fontWeight: 600,
+              fontStyle: 'italic',
+              color: 'var(--text-muted)',
+              maxWidth: 580,
+              margin: '0 auto',
+            }}
+          >
             &ldquo;photography is an art that tells stories without words&rdquo;
           </p>
         </motion.div>
       </div>
     </motion.div>
-  );
+  )
 }
